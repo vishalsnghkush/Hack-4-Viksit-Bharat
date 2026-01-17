@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+service_account_key.json
+*.json
+!package.json
+temp_video.mp4
+results/
+src/results/
+.ipynb_checkpoints
+.DS_Store

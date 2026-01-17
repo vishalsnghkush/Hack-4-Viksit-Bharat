@@ -10,7 +10,12 @@ from enum import Enum
 from collections import deque
 import math
 
-from mapping import EnvironmentMap
+try:
+    from metrics import OverallMetrics
+    from mapping import EnvironmentMap
+except ImportError:
+    from src.metrics import OverallMetrics
+    from src.mapping import EnvironmentMap
 
 
 class NavigationState(Enum):

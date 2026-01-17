@@ -29,6 +29,15 @@ VEHICLE_COLOR = (0, 255, 0)  # Green for vehicles
 TRAFFIC_LIGHT_COLOR = (0, 0, 255)  # Red for traffic lights
 
 
+class VideoFrameSkipper:
+    def __init__(self, skip_n=0):
+        self.skip_n = skip_n
+        
+    def should_process(self, frame_count):
+        # Always process if skip_n is 0
+        if self.skip_n <= 0: return True
+        return (frame_count % (self.skip_n + 1)) == 0
+
 def load_yolo_model(model_path: str = None) -> YOLO:
     """
     Load YOLOv8 model. Downloads if not available.

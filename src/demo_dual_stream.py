@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 import sys
 import os
+import threading
 
 # Import existing modules
 sys.path.append(str(Path(__file__).parent))
@@ -49,6 +50,27 @@ class DualStreamNavigationSystem(VisionNavigationSystem):
         self.bg_stopping = False
         self.bg_thread = threading.Thread(target=self._perception_loop, daemon=True)
         self.bg_thread.start()
+        
+        # Telemetry for Cloud
+        self.telemetry_log = []
+        
+        # --- STREAMING SETUP ---
+        from gcp_pipeline import setup_gcp_clients, stream_to_bigquery, BQ_DATASET_NAME, BQ_TABLE_NAME
+        _, self.bq_client = setup_gcp_clients()
+        self.bq_dataset = BQ_DATASET_NAME
+        self.bq_table = BQ_TABLE_NAME
+        
+        self.stream_buffer = []
+        self.last_stream_time = time.time()
+        self.STREAM_INTERVAL = 1.0 # Seconds (Faster updates)
+        self.STREAM_BATCH_SIZE = 5
+
+    def _stream_worker(self, data_chunk):
+        """Threaded worker to upload data chunk."""
+        from gcp_pipeline import stream_to_bigquery
+        success = stream_to_bigquery(self.bq_client, self.bq_dataset, self.bq_table, data_chunk)
+        if success:
+            print(".", end="", flush=True) # Minimal feedback
 
     def _perception_loop(self):
         """Background loop for heavy AI processing."""
@@ -325,6 +347,7 @@ class DualStreamNavigationSystem(VisionNavigationSystem):
         print("  - STEER: Lean Left/Right (Face Position)")
         print("  - SPEED: Open Palm (Go), Fist (Stop)")
         
+        start_time_epoch = time.time()
         frame_count = 0
         speed = 0.5 
         
@@ -798,9 +821,41 @@ class DualStreamNavigationSystem(VisionNavigationSystem):
                                             timestamp=current_time
                                         )
                 self.env_map.clear_old_obstacles(current_time, max_age=5.0)
+            
+            # --- TELEMETRY LOGGING (NEW) ---
+            # Record metrics for Cloud Upload
+            if hasattr(self, 'telemetry_log'):
+                import datetime
+                self.telemetry_log.append({
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    "relative_time": time.time() - start_time_epoch,
+                    "mode": self.driving_state.lower(), # stopped, driving, parking
+                    "speed": speed,
+                    "acceleration": (speed - last_speed) * 30.0, # Approx accel
+                    "brake_pressure": 1.0 if speed_cmd == 0.0 and speed > 0.1 else 0.0
+                })
                 
-                # NEW: Update navigation
-                nav_status = self.navigator.update()
+                # --- LIVE STREAMING ---
+                # Add copy to buffer
+                self.stream_buffer.append(self.telemetry_log[-1].copy())
+                
+                # Check flush conditions
+                current_time_log = time.time()
+                if (len(self.stream_buffer) >= self.STREAM_BATCH_SIZE) or \
+                   (current_time_log - self.last_stream_time > self.STREAM_INTERVAL and len(self.stream_buffer) > 0):
+                    
+                    # Offload to thread
+                    chunk = list(self.stream_buffer)
+                    self.stream_buffer = [] # Clear buffer
+                    self.last_stream_time = current_time_log
+                    
+                    t = threading.Thread(target=self._stream_worker, args=(chunk,), daemon=True)
+                    t.start()
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+
             
             # --- 3D MAP VISUALIZATION (NeRF MEMORY) ---
             # Project tracked features onto a "Ground Plane" map
@@ -924,6 +979,36 @@ class DualStreamNavigationSystem(VisionNavigationSystem):
         cap_road.release()
         self.driver_monitor.release()
         cv2.destroyAllWindows()
+
+        # --- UPLOAD TO CLOUD (Correctly placed after loop) ---
+        if hasattr(self, 'telemetry_log') and len(self.telemetry_log) > 0:
+            print(f"\n[Cloud Sync] Processing {len(self.telemetry_log)} data points...")
+            
+            # 1. Save to CSV
+            import pandas as pd
+            import datetime
+            from gcp_pipeline import setup_gcp_clients, upload_to_bigquery, BQ_DATASET_NAME, BQ_TABLE_NAME
+            
+            run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_dir = Path("results")
+            output_dir.mkdir(exist_ok=True)
+            csv_path = output_dir / f"session_{run_id}.csv"
+            
+            df = pd.DataFrame(self.telemetry_log)
+            # Ensure columns match BigQuery Schema
+            # timestamp, relative_time, mode, speed, acceleration, brake_pressure
+            df.to_csv(csv_path, index=False)
+            print(f"[Cloud Sync] Saved session to {csv_path}")
+            
+            # 2. Upload
+            print("[Cloud Sync] Connecting to BigQuery...")
+            _, bq_client = setup_gcp_clients()
+            if bq_client:
+                print(f"[Cloud Sync] Uploading to {BQ_DATASET_NAME}.{BQ_TABLE_NAME}...")
+                upload_to_bigquery(bq_client, BQ_DATASET_NAME, BQ_TABLE_NAME, str(csv_path))
+                print("[Cloud Sync] ✅ UPDATE COMPLETE! Verify on your Streamlit Dashboard.")
+            else:
+                print("[Cloud Sync] ❌ Failed to connect to GCP. Data saved locally only.")
 
 def main():
     project_root = Path(__file__).parent.parent

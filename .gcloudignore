@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.gitignore
+.venv
+__pycache__
+node_modules
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+runs/
+results/
+data/

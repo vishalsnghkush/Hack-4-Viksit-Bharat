@@ -7,6 +7,10 @@ import numpy as np
 import cv2
 from typing import Dict, List, Tuple, Optional
 from collections import deque
+try:
+    from localization_vo import VisualOdometry
+except ImportError:
+    from src.localization_vo import VisualOdometry
 from dataclasses import dataclass
 from enum import Enum
 

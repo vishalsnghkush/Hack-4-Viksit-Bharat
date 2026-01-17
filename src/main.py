@@ -11,15 +11,27 @@ from pathlib import Path
 from typing import List, Dict, Optional
 import numpy as np
 
-from video_input import load_yolo_model, VEHICLE_CLASSES, TRAFFIC_LIGHT_CLASS
-from perception import MotionEstimator
-from gps_monitor import GPSMonitor, GPSDegradationSimulator
-from speed_smoother import SpeedSmoother, ObstacleInfo, SpeedCommand
-from metrics import MetricsCollector
-from depth_estimation import MonocularDepthEstimator
-from localization_vo import VisualOdometry
-from mapping import EnvironmentMap
-from navigation import GlobalNavigator, Goal
+# Handle imports for both script run and module import
+try:
+    from video_input import load_yolo_model, VEHICLE_CLASSES, TRAFFIC_LIGHT_CLASS
+    from perception import MotionEstimator
+    from gps_monitor import GPSMonitor, GPSDegradationSimulator
+    from speed_smoother import SpeedSmoother, ObstacleInfo, SpeedCommand
+    from metrics import MetricsCollector
+    from depth_estimation import MonocularDepthEstimator
+    from localization_vo import VisualOdometry
+    from mapping import EnvironmentMap
+    from navigation import GlobalNavigator, Goal
+except ImportError:
+    from src.video_input import load_yolo_model, VEHICLE_CLASSES, TRAFFIC_LIGHT_CLASS
+    from src.perception import MotionEstimator
+    from src.gps_monitor import GPSMonitor, GPSDegradationSimulator
+    from src.speed_smoother import SpeedSmoother, ObstacleInfo, SpeedCommand
+    from src.metrics import MetricsCollector
+    from src.depth_estimation import MonocularDepthEstimator
+    from src.localization_vo import VisualOdometry
+    from src.mapping import EnvironmentMap
+    from src.navigation import GlobalNavigator, Goal
 
 
 class VisionSpeedSmoothingSystem:
