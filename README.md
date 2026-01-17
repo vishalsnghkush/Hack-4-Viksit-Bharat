@@ -194,7 +194,7 @@ Once the simulator starts:
 ---
 
 ## 📂 Source Code
-**GitHub Repository**: [https://github.com/vishalsnghkush/vision-speed-smoothing-ai](https://github.com/vishalsnghkush/vision-speed-smoothing-ai)
+**GitHub Repository**: [https://github.com/vishalsnghkush/Hack-4-Viksit-Bharat](https://github.com/vishalsnghkush/Hack-4-Viksit-Bharat)
 
 ---
 
@@ -202,3 +202,7 @@ Once the simulator starts:
 *   **AI Model**: HuggingFace & NVIDIA (SegFormer).
 *   **Datasets**: Cityscapes Dataset (Cordts et al.).
 *   **Created For**: Interactive Vision Speed Smoothing & Safety Project.
+*   **Team / Collaborators**:
+    *   Aditi Malviya
+    *   Ashi Dubey
+    *   Anshika
