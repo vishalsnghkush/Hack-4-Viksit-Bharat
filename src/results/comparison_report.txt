@@ -1,0 +1,25 @@
+============================================================
+METRICS COMPARISON REPORT
+============================================================
+
+Speed Variance:
+  Baseline:  24.6603 m²/s²
+  Smoothed:  5.8247 m²/s²
+  Improvement: 76.4%
+
+Brake Events:
+  Baseline:  27
+  Smoothed:  5
+  Reduction: 81.5%
+
+Acceleration Peaks (> 1.5 m/s²):
+  Baseline:  0
+  Smoothed:  0
+  Reduction: 0.0%
+
+Energy Efficiency Score:
+  Baseline:  0.1637
+  Smoothed:  0.3078
+  Improvement: 88.0%
+
+============================================================

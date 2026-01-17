@@ -1,0 +1,45 @@
+C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\image_processing_base.py:417: UserWarning: The following named arguments are not valid for `SegformerImageProcessor.__init__` and were ignored: 'feature_extractor_type', 'reduce_labels'
+  image_processor = cls(**image_processor_dict)
+Loading Semantic Segmentation model: nvidia/segformer-b0-finetuned-cityscapes-512-1024...
+Using device: cpu
+Model loaded successfully.
+Traceback (most recent call last):
+  File "C:\Users\VISHAL KUSHWAHA\OneDrive\Desktop\vision_speed_smoothing_ai\src\perception_transformer.py", line 100, in <module>
+    result = segmenter.process_frame(frame)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\OneDrive\Desktop\vision_speed_smoothing_ai\src\perception_transformer.py", line 64, in process_frame
+    inputs = self.processor(images=pil_image, return_tensors="pt").to(self.device)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\models\segformer\image_processing_segformer.py", line 293, in __call__
+    return super().__call__(images, segmentation_maps=segmentation_maps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\image_processing_utils.py", line 51, in __call__
+    return self.preprocess(images, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\utils\generic.py", line 809, in wrapper
+    return func(*args, **valid_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\models\segformer\image_processing_segformer.py", line 393, in preprocess
+    self._preprocess_image(
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\models\segformer\image_processing_segformer.py", line 233, in _preprocess_image
+    image = self._preprocess(
+            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\models\segformer\image_processing_segformer.py", line 199, in _preprocess
+    image = self.resize(image=image, size=size, resample=resample, input_data_format=input_data_format)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\models\segformer\image_processing_segformer.py", line 163, in resize
+    return resize(
+           ^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\image_transforms.py", line 374, in resize
+    image = to_pil_image(image, do_rescale=do_rescale, input_data_format=input_data_format)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\image_transforms.py", line 193, in to_pil_image
+    if is_torch_tensor(image) or is_tf_tensor(image):
+                                 ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\utils\generic.py", line 199, in is_tf_tensor
+    return False if not is_tf_available() else _is_tensorflow(x)
+                                               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\VISHAL KUSHWAHA\AppData\Roaming\Python\Python312\site-packages\transformers\utils\generic.py", line 192, in _is_tensorflow
+    return isinstance(x, tf.Tensor)
+                         ^^^^^^^^^
+AttributeError: module 'tensorflow' has no attribute 'Tensor'
